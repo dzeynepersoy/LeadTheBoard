@@ -1,0 +1,122 @@
+﻿@model IEnumerable<TaskAssignmentListModel>
+@{
+    ViewData["Title"] = "Task Assignment";
+}
+
+@section Head {
+    <!-- DataTables -->
+    <link href="~/lib/datatables-bs4/css/datatables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="~/lib/datatables-buttons/css/buttons.bootstrap4.min.css" rel="stylesheet" />
+
+}
+
+@section Scripts {
+
+    <!-- DataTables  & Plugins -->
+    <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/lib/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+
+    <script>
+        $(function () {
+
+            // Edit butonuna tıklanınca
+            $('.btnEdit').click(function () {
+                var row = $(this).closest('tr');
+                var taskId = row.find('td:first').text();
+                var operatorId = row.find('td:nth-child(2)').attr('data-id');
+                var operationId = row.find('td:nth-child(3)').attr('data-id');
+
+                // Formu doldurma
+                $('#Id').val(taskId);
+                $('#OperatorId').val(operatorId);
+                $('#OperationId').val(operationId);
+            });
+
+            $('#dataTable').DataTable({
+                "paging": false,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": true,
+                "responsive": true,
+            });
+        });
+    </script>
+}
+
+<div class="container-fluid">
+    <form asp-action="CreateOrEdit">
+        <input name="Id" id="Id" value="" type="hidden" />
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label for="OperatorId">Operator</label>
+                    <select id="OperatorId" name="OperatorId" class="custom-select" size="6" required>
+                        @if (ViewBag.Operators != null)
+                        {
+                            foreach (var item in (List<UserListModel>)ViewBag.Operators)
+                            {
+                                <option value="@item.Id">@item.FullName</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label for="OperationId">Operation</label>
+                    <select id="OperationId" name="OperationId" class="custom-select" size="6" required>
+                        @if (ViewBag.Operations != null)
+                        {
+                            foreach (var item in (List<OperationListModel>)ViewBag.Operations)
+                            {
+                                <option value="@item.Id">@item.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2 align-self-end mb-1">
+                <div class="form-group">
+                    <button type="reset" class="btn btn-sm">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    <button class="btn btn-outline-primary">Save Task</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <div class="col">
+            <table id="dataTable" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Operator</th>
+                        <th>Operation</th>
+                        <th></th> <!-- Güncelleme ve Silme için boş bir th -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td data-id="@item.OperatorId">@item.OperatorName</td>
+                            <td data-id="@item.OperationId">@item.OperationName</td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm btnEdit">Edit</button>
+                                <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,57 @@
+﻿@model BadgeModel
+
+@{
+    ViewData["Title"] = "Create Badge";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="imageFile" class="control-label">Image File</label>
+                    <input name="imageFile" id="imageFile" class="form-control" type="file" required />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="RequiredPoints" class="control-label"></label>
+                    <input asp-for="RequiredPoints" class="form-control" />
+                    <span asp-validation-for="RequiredPoints" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ValidityDateStart" class="control-label"></label>
+                    <input asp-for="ValidityDateStart" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="ValidityDateStart" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ValidityDateEnd" class="control-label"></label>
+                    @{
+                        DateTime endDate = DateTime.Now.AddDays(15);
+                    }
+                    <input asp-for="ValidityDateEnd" class="form-control" type="date" value="@endDate.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="ValidityDateEnd" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="mb-5">
+        <a asp-action="Index">Back to List</a>
+    </div>
+</div>
+
+
+

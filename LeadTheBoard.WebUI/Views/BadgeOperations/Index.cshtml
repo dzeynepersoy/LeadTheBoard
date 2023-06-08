@@ -1,0 +1,54 @@
+﻿@model IEnumerable<BadgeListModel>
+
+@{
+    ViewData["Title"] = "Badge Operation";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            @if (!User.IsInRole("Operator"))
+            {
+                <a class="btn btn-primary" asp-action="Create" asp-controller="BadgeOperations">Add Badge</a>
+            }
+        </div>
+    </div>
+    <div class="row">
+
+        @if (Model != null)
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card horizontal-card mb-3">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <img src="@item.ImageUrl" class="card-img rounded-circle" alt="Badge Image" style="width: 100px; height: 100px;">
+                            </div>
+                            <div class="col">
+                                <div class="card-body">
+                                    <h5 class="card-title font-weight-bold mb-2">@item.Name</h5>
+                                    <p class="card-text">@item.Description</p>
+                                    <div class="d-flex justify-content-end">
+
+                                        @if (!User.IsInRole("Operator"))
+                                        {
+                                            <a class="btn btn-outline-primary btn-sm mr-2" asp-action="Edit" asp-route-id="@item.Id">
+                                                <i class="far fa-edit"></i>
+                                            </a>
+                                            <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">
+                                                <i class="far fa-trash-alt"></i>
+                                            </a>
+                                        }
+                                       
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+</div>

@@ -1,0 +1,135 @@
+﻿@model UserDetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+@section Head {
+    <style>
+        .profile-image {
+            position: relative;
+        }
+
+        .user-details p {
+            margin-bottom: 10px;
+        }
+
+        .badge-images {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .statistics {
+            margin-top: 20px;
+        }
+
+        .task-statistics canvas {
+            width: 100%;
+            height: auto;
+        }
+
+    </style>
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="text-center">
+                <div class="profile-image">
+                    <img src="@Model.UserImageUrl" alt="Profile Image" class="rounded-circle" width="150" height="150" />
+                </div>
+                <div class="user-details mt-4">
+                    <p><strong>Rank:</strong> <span class="rank-number">1</span></p>
+                    <p><strong>User ID:</strong> <span class="rank-number">@Model.UserId</span></p>
+                    <p><strong>Name:</strong> @Model.UserFullName</p>
+                    <p><strong>Title:</strong> @Model.Title</p>
+                    <p><strong>Current Status:</strong> Active</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="badges">
+                <h4>Badges</h4>
+                <div class="badge-images">
+                    @if (Model.Badges != null && Model.Badges.Count > 0)
+                    {
+                        foreach (var badge in Model.Badges)
+                        {
+                            <img src="@badge.ImageUrl" alt="@badge.Name" class="badge-image" width="50" height="50" />
+                        }
+                    }
+                    else
+                    {
+                        <p>No badges found.</p>
+                    }
+                </div>
+            </div>
+            <div class="statistics">
+                <h4>Statistics</h4>
+                <div class="task-statistics">
+                    @if (Model.Statistics != null && Model.Statistics.Count > 0)
+                    {
+                        <canvas id="lineChart" width="400" height="200"></canvas>
+                        <script src="~/lib/chart.js/Chart.min.js"></script>
+
+                        <script>
+                            var ctx = document.getElementById('lineChart').getContext('2d');
+                            var chartData = {
+                                labels: [@{
+                                var labelsArray = new List<string>();
+                                foreach (var stat in Model.Statistics)
+                                {
+                                    labelsArray.Add("'" + stat.CompletedDate.ToString("yyyy-MM-dd") + "'");
+                                }
+                                @Html.Raw(string.Join(",", labelsArray))
+                            }],
+                                datasets: [{
+                                    label: 'Points',
+                                    data: [@{
+                                var dataPointsArray = new List<int>();
+                                foreach (var stat in Model.Statistics)
+                                {
+                                    dataPointsArray.Add(stat.Point);
+                                }
+                                @Html.Raw(string.Join(",", dataPointsArray))
+                            }],
+                                    borderColor: 'rgba(0, 123, 255, 1)',
+                                    backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                                    borderWidth: 2,
+                                    fill: true
+                                }]
+                            };
+
+                            var lineChart = new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    }
+                    else
+                    {
+                        <p>No statistics found.</p>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

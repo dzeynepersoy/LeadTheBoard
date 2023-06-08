@@ -1,0 +1,161 @@
+﻿@model MainPageModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/lib/fullcalendar/main.css">
+
+    <style>
+        .fc-content {
+        }
+        #calendar {
+            height: 62vh;
+            font-size: small !important;
+            width: 100%;
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- fullCalendar 2.2.5 -->
+    <script src="~/lib/moment/moment.min.js"></script>
+    <script src="~/lib/fullcalendar/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Line Chart verileri
+            var chartData = {
+                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                datasets: [{
+                    label: 'Task Count',
+                    data: [@string.Join(", ", Model.TaskStatistics.List.Select(x => x.CompletedTotalCount))],
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            // Line Chart yapılandırma
+            var chartOptions = {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        stepSize: 1
+                    }
+                }
+            };
+
+            // Line Chart oluşturma
+            var lineChart = new Chart(document.getElementById('lineChart'), {
+                type: 'line',
+                data: chartData,
+                options: chartOptions
+            });
+        });
+
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: [
+        @foreach (var taskStatistic in Model.TaskStatistics.List)
+        {
+            <text>{
+                            title: 'Task Count: @taskStatistic.CompletedTotalCount',
+                            start: '@taskStatistic.Date.ToString("yyyy-MM-dd")'
+                        },
+            </text>
+        }
+                                ]
+            });
+
+            calendar.render();
+        });
+    </script>
+}
+
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white d-flex flex-column h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <a href="~/Users/Index" class="text-white">Users</a>
+                        </h3>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <i class="fas fa-users fa-3x"></i>
+                        <ul class="list-unstyled ml-3">
+                            <li>Operators (@Model.Users.OperatorsTotalCount)</li>
+                            <li>Managers (@Model.Users.ManagersTotalCount)</li>
+                            <li>Admins (@Model.Users.AdminsTotalCount)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card bg-success text-white d-flex flex-column h-100 ">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <a href="~/TaskAssignment/Index" class="text-white">Tasks</a>
+                        </h3>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <i class="fas fa-tasks fa-3x"></i>
+                        <div class="ml-3">
+                            <p>Active: @Model.Tasks.ActiveTaskTotalCount</p>
+                            <p>Completed: @Model.Tasks.CompletedTaskTotalCount</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning bg-opacity-75 text-white d-flex flex-column h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <a href="~/ProductCatalog/Index" class="text-white">Products</a>
+                        </h3>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-between text-white">
+                        <i class="fas fa-cubes fa-3x"></i>
+                        <p class="ml-3">Total: @Model.Products.ProductTotalCount</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card bg-info text-white d-flex flex-column h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <a href="~/Machines/Index" class="text-white">Machines</a>
+                        </h3>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <i class="fas fa-cogs fa-3x"></i>
+                        <p class="ml-3">Total: @Model.Machines.MachineTotalCount</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row mt-4">
+            <div class="col-md-6" id="completedTaskChart">
+                <canvas id="lineChart"></canvas>
+            </div>
+
+            <div class="col-md-6" id="eventCalendar">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>

@@ -1,0 +1,138 @@
+﻿@{
+    var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+}
+
+@functions {
+    //hangi sayfada olduğumuzu anlamak için
+    public bool IsPageActive(string controller, string action)
+    {
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+        return string.Equals(controller, currentController, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(action, currentAction, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+<nav class="mt-2">
+    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+        @if (userRoles.Contains("Operator"))
+        {
+            <li class="nav-item">
+                <a asp-controller="Tasks" asp-action="Index" class="nav-link @(IsPageActive("Tasks", "Index") ? "active" : "")">
+                    <p>Tasks</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="LeadBoard" asp-action="Index" class="nav-link @(IsPageActive("LeadBoard", "Index") ? "active" : "")">
+                    <p>Lead Board</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="BadgeOperations" asp-action="Index" class="nav-link @(IsPageActive("BadgeOperations", "Index") ? "active" : "")">
+                    <p>Badge Operations</p>
+                </a>
+            </li>
+        }
+        else if (userRoles.Contains("Manager"))
+        {
+            <li class="nav-item">
+                <a asp-controller="Operations" asp-action="Index" class="nav-link @(IsPageActive("Operations", "Index") ? "active" : "")">
+                    <p>Operations</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="TaskAssignment" asp-action="Index" class="nav-link @(IsPageActive("TaskAssignment", "Index") ? "active" : "")">
+                    <p>Task Assignment</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="ProductCatalog" asp-action="Index" class="nav-link @(IsPageActive("ProductCatalog", "Index") ? "active" : "")">
+                    <p>Product Catalog</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="LeadBoard" asp-action="Index" class="nav-link @(IsPageActive("LeadBoard", "Index") ? "active" : "")">
+                    <p>Lead Board</p>
+                </a>
+            </li>
+        }
+        else if (userRoles.Contains("Admin"))
+        {
+            
+            <li class="nav-item">
+                <a asp-controller="Operations" asp-action="Index" class="nav-link @(IsPageActive("Operations", "Index") ? "active" : "")">
+
+                    <p>
+                        Operations
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="LeadBoard" asp-action="Index" class="nav-link @(IsPageActive("LeadBoard", "Index") ? "active" : "")">
+
+                    <p>
+                        Lead Board
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Machines" asp-action="Index" class="nav-link @(IsPageActive("Machines", "Index") ? "active" : "")">
+
+                    <p>
+                        Machines
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Departmans" asp-action="Index" class="nav-link @(IsPageActive("Departmans", "Index") ? "active" : "")">
+
+                    <p>
+                        Departmans
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="TaskAssignment" asp-action="Index" class="nav-link @(IsPageActive("TaskAssignment", "Index") ? "active" : "")">
+
+                    <p>
+                        Task Assignment
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="ProductCatalog" asp-action="Index" class="nav-link @(IsPageActive("ProductCatalog", "Index") ? "active" : "")">
+
+                    <p>
+                        Product Catalog
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="BadgeOperations" asp-action="Index" class="nav-link @(IsPageActive("BadgeOperations", "Index") ? "active" : "")">
+
+                    <p>
+                        Badge Operations
+                    </p>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a asp-controller="Users" asp-action="Index" class="nav-link @(IsPageActive("Users", "Index") ? "active" : "")">
+                    <p>
+                        Users
+                    </p>
+                </a>
+            </li>
+        }
+        
+        <li class="nav-item text-center mt-2">
+            <a asp-action="Logout" asp-controller="Account" class="btn btn-outline-danger">
+                <i class="fas fa-power-off"></i>
+                Logout
+            </a>
+        </li>
+
+    </ul>
+</nav>

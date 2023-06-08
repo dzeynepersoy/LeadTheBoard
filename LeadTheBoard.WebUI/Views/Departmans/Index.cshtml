@@ -1,0 +1,139 @@
+﻿@model IEnumerable<DepartmentListModel>
+@{
+    ViewData["Title"] = "Departmans";
+}
+
+@section Head {
+    <!-- DataTables -->
+    <link href="~/lib/datatables-bs4/css/datatables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="~/lib/datatables-buttons/css/buttons.bootstrap4.min.css" rel="stylesheet" />
+
+}
+
+@section Scripts {
+
+    <!-- DataTables  & Plugins -->
+    <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/lib/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+
+    <script>
+        $(function () {
+
+            // Edit düğmelerine tıklandığında
+            $('.btnEdit').on('click', function () {
+                var row = $(this).closest('tr'); // Tıklanan düğmenin olduğu satırı seç
+
+                // Alanları doldur
+                var departmanId = row.find('td:eq(0)').text();
+                var departmanName = row.find('td:eq(1)').text();
+                var departmanDescription = row.find('td:eq(2)').text();
+                var productIds = row.find('td:eq(3)').data('ids').toString().split(', ');
+
+                //console.log(productIds);
+
+                $('#Id').val(departmanId);
+                $('#Name').val(departmanName);
+                $('#Description').val(departmanDescription);
+
+                // Products multi select'i güncelle
+                $('#products option').each(function () {
+                    var productId = $(this).val().trim();
+                    if (productIds.includes(productId)) {
+                        $(this).prop('selected', true);
+                    } else {
+                        $(this).prop('selected', false);
+                    }
+                });
+            });
+
+            $('#dataTable').DataTable({
+                "paging": false,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": true,
+                "responsive": true,
+            });
+        });
+    </script>
+}
+
+<div class="container-fluid">
+    <form asp-action="CreateOrEdit">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="departmanId">Departman ID</label>
+                    <input type="text" class="form-control" id="Id" name="Id" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="departmanName">Departman Name</label>
+                    <input type="text" class="form-control" id="Name" name="Name">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="departmanDescription">Departman Description</label>
+                    <textarea class="form-control" id="Description" name="Description" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="products">Products</label>
+                    <select id="products" name="products" class="form-control" multiple size="6">
+                        @if (ViewBag.Products != null)
+                        {
+                            foreach (var product in (List<ProductListModel>)ViewBag.Products)
+                            {
+                                <option value="@product.Id">@product.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2 align-self-end mb-1">
+                <div class="form-group d-flex">
+                    <button type="reset" class="btn btn-sm">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    <button class="btn btn-outline-primary">Save Departman</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <div class="col">
+            <table id="dataTable" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Departman ID</th>
+                        <th>Departman Name</th>
+                        <th>Departman Description</th>
+                        <th>Products</th>
+                        <th></th> <!-- Güncelleme ve Silme için boş bir th -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Name</td>
+                            <td>@item.Description</td>
+                            <td data-ids="@item.ProductIds">@item.Products</td>
+                            <td>
+                                <a class="btn btn-outline-primary btn-sm btnEdit">Edit</a>
+                                <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

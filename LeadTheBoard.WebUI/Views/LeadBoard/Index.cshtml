@@ -1,0 +1,179 @@
+﻿@model LeadBoardModel
+@{
+    ViewData["Title"] = "Lead Board";
+
+    DateTime currentDate = DateTime.Now.AddDays(1);//bugünü de sayması için 1 gün ekledik
+    DateTime yearStartDate = new DateTime(currentDate.Year, 1, 1);
+    DateTime monthStartDate = new DateTime(currentDate.Year, currentDate.Month, 1);
+    DateTime weekStartDate = currentDate.AddDays(-(int)currentDate.DayOfWeek);
+
+string GetRankClass(int rank)
+    {
+        if (rank == 1)
+        {
+            return "gold";
+        }
+        else if (rank == 2)
+        {
+            return "silver";
+        }
+        else if (rank == 3)
+        {
+            return "bronze";
+        }
+        else
+        {
+            return "";
+        }
+    }
+}
+
+@section Head {
+    <style>
+        .rank-number {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .gold {
+            background-color: gold;
+        }
+
+        .silver {
+            background-color: silver;
+        }
+
+        .bronze {
+            background-color: #b87333;
+        }
+
+        .profile-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .list-group-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .list-group-item span {
+            margin-right: 10px;
+        }
+
+        .rank-card {
+            background-color: #f8f9fa;
+        }
+
+        .rank-card-header {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .rank-card .rank-number {
+            margin-right: 0;
+        }
+
+        .rank-card .card-body {
+            padding-top: 0;
+        }
+
+        .rank-card .card-body h1 {
+            font-size: 48px;
+        }
+
+        .rank-card .card-body .points {
+            font-size: 24px;
+            color: #6c757d;
+        }
+
+        .rank-card .card-body .user-details {
+            margin-top: 10px;
+        }
+
+        .list-group .list-group-item {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+
+    </script>
+}
+
+
+<div class="container pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form asp-action="Index" asp-controller="LeadBoard" method="get">
+                <div class="form-group d-flex align-items-center">
+                    <input id="filterStartDate" name="filterStartDate" class="form-control" type="date">
+                    <span class="mx-2">-</span>
+                    <input id="filterEndDate" name="filterEndDate" class="form-control" type="date">
+                    <button type="reset" class="btn btn-outline-default ml-2">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button type="submit" class="btn btn-outline-primary ml-2">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="d-flex justify-content-center">
+                <a asp-action="Index" asp-controller="LeadBoard" asp-route-filterStartDate="@yearStartDate.ToString("yyyy-MM-dd")" asp-route-filterEndDate="@currentDate.ToString("yyyy-MM-dd")" class="btn btn-outline-primary mx-3">This Year</a>
+                <a asp-action="Index" asp-action="Index" asp-controller="LeadBoard" asp-route-filterStartDate="@monthStartDate.ToString("yyyy-MM-dd")" asp-route-filterEndDate="@currentDate.ToString("yyyy-MM-dd")" class="btn btn-outline-primary mx-3">This Month</a>
+                <a asp-action="Index" asp-controller="LeadBoard" asp-route-filterStartDate="@weekStartDate.ToString("yyyy-MM-dd")" asp-route-filterEndDate="@currentDate.ToString("yyyy-MM-dd")" class="btn btn-outline-primary mx-3">This Week</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-3">
+            <div class="card rank-card">
+                <div class="card-header rank-card-header">Your Rank: @Model.CurrentUser.Rank</div>
+                <div class="card-body">
+                    <h1 class="text-center">@Model.CurrentUser.Points</h1>
+                    <div class="user-details">
+                        <span class="user-name">@Model.CurrentUser.Name</span>
+                        <span class="points">@Model.CurrentUser.Points Points</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <ul class="list-group">
+                @foreach (var user in Model.Users.List)
+                {
+                    <li class="list-group-item">
+                        <span class="rank-number @GetRankClass(user.Rank)">@user.Rank</span>
+                        <img src="@user.UserImage" alt="Profile Image" class="profile-image" />
+                        <div class="user-details">
+                            <span class="user-name">@user.Name</span>
+                            <span class="points">@user.Points Points</span>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,232 @@
+﻿@model IEnumerable<OperationListModel>
+@{
+    ViewData["Title"] = "Operations";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/lib/jquery-bar-rating-master/dist/themes/fontawesome-stars.css">
+    <link href="~/lib/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <!-- DataTables -->
+    <link href="~/lib/datatables-bs4/css/datatables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="~/lib/datatables-buttons/css/buttons.bootstrap4.min.css" rel="stylesheet" />
+
+}
+
+@section Scripts {
+    <script src="~/lib/jquery-bar-rating-master/dist/jquery.barrating.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //yıldızları seçmek için
+            $('#stars').barrating({
+                theme: 'fontawesome-stars',
+                initialRating: 0,
+                onSelect: function (value, text, event) {
+                    if (typeof event !== 'undefined') {
+                        $('#pointInput').val(calculatePoints(parseInt(value)));
+                    } else {
+                        //console.log("barrating value", value);
+                        //console.log("barrating text", text);
+                        //console.log("barrating event", event);
+                    }
+                }
+            });
+
+            //puan inputuna girilen değer değiştiğinde
+            $('#pointInput').on('input', function () {
+                // Input value was changed
+                calculateStars(parseInt($(this).val()));
+            });
+
+            //Yıldız ile puan arasındaki ilişkiyi hesaplar ve puanı döndürür
+            function calculatePoints(selectedStarsValue) {
+                var calculatedPoints = selectedStarsValue * 20;
+                return calculatedPoints;
+            }
+
+            //Puan ile yıldız arasındaki ilişkiyi hesaplar ve yıldızı döndürür
+            function calculateStars(enteredPointsValue) {
+                if (enteredPointsValue > 100) {
+                    enteredPointsValue = 100;
+                }
+                if (enteredPointsValue < 0) {
+                    enteredPointsValue = 1;
+                }
+                if (enteredPointsValue == "" || enteredPointsValue == NaN || enteredPointsValue == undefined) {
+                    enteredPointsValue = 1;
+                }
+
+                //console.log("calculateStars", enteredPointsValue)
+
+                var calculatedStars = Math.ceil(enteredPointsValue / 20);
+
+                if (calculatedStars == "" || calculatedStars == NaN || calculatedStars == undefined) {
+                    calculatedStars = 1;
+                }
+                //console.log("calculatedStars", calculatedStars)
+
+                var starsSelect = $('#stars');
+
+                starsSelect.barrating('set', calculatedStars);
+            }
+        });
+    </script>
+
+    <!-- DataTables  & Plugins -->
+    <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/lib/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+
+    <script>
+        $(function () {
+
+            // "Güncelle" butonuna tıklanma olayını yakalama
+            $(document).on("click", ".btnEdit", function () {
+                // Satırın verilerini al
+                var id = $(this).data("id");
+                var row = $(this).closest("tr");
+                var operationName = row.find("td:eq(0)").text();
+                var productId = row.find("td:eq(1)").data("id");
+                var machineId = row.find("td:eq(2)").data("id");
+                var difficultyLevel = row.find("td:eq(4)").text();
+                var points = row.find("td:eq(3)").data("point");
+               
+                // Verileri ilgili alanlara doldur
+                $("#Id").val(id);
+                $("#Name").val(operationName);
+                $("Select#ProductId").val(productId);
+                $("Select#MachineId").val(machineId);
+                $("#pointInput").val(points);
+                $("#stars").barrating("set", difficultyLevel);
+            });
+
+            $(document).on("click", "#resetButton", function () {
+                // İlgili alanları sıfırla
+                $("#Id").val("");
+                $("#Name").val("");
+                $("#ProductId").val($("#ProductId option:first").val());
+                $("#MachineId").val($("#MachineId option:first").val());
+                $("#pointInput").val(0);
+                $("#stars").barrating("clear");
+            });
+
+            $('#dataTable').DataTable({
+                "paging": false,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": true,
+                "responsive": true,
+            });
+        });
+    </script>
+}
+
+<div class="container-fluid">
+    <form asp-action="CreateOrEdit">
+        <input name="Id" id="Id" type="hidden" readonly />
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="inputState">Product</label>
+                    <select class="custom-select" size="6" name="ProductId" id="ProductId" required>
+                        @if (ViewBag.Products != null)
+                        {
+                            foreach (var product in (List<ProductListModel>)ViewBag.Products)
+                            {
+                                <option value="@product.Id">@product.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="inputState">Machine</label>
+                    <select class="custom-select" size="3" id="MachineId" name="MachineId" required>
+                        @if (ViewBag.Machine != null)
+                        {
+                            foreach (var machine in (List<MachineListModel>)ViewBag.Machine)
+                            {
+                                <option value="@machine.Id">@machine.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <input id="pointInput" name="Point" type="number" class="form-control" placeholder="Points (0-100)" min="0" max="100">
+                    </div>
+                    <div class="col">
+                        <div class="br-wrapper br-theme-fontawesome-stars pl-2 mt-2">
+                            <select id="stars" name="DifficultyLevel">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="Name">Operation</label>
+                    <textarea class="form-control" id="Name" name="Name" rows="5" required></textarea>
+                </div>
+            </div>
+            <div class="col-md-2 align-self-end mb-1">
+                <div class="form-group">
+                    <button type="reset" class="btn btn-sm" id="resetButton">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    <button type="submit" class="btn btn-outline-warning btn-lg">
+                        <i class="far fa-save"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row mt-3">
+        <div class="col">
+            <table id="dataTable" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Operation Name</th>
+                        <th>Product</th>
+                        <th>Machine</th>
+                        <th>Points</th>
+                        <th>Difficullty</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td data-id="@item.ProductId">@item.ProductName</td>
+                            <td data-id="@item.MachineId">@item.MachineName</td>
+                            <td data-point="@item.Point">@item.Point</td>
+                            <td>@item.DifficultyLevel</td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm btnEdit" data-id="@item.Id">
+                                    <i class="far fa-save"></i>
+                                </button>
+                                <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">
+                                    <i class="far fa-trash-alt"></i>
+                                </a>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
